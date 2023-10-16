@@ -52,5 +52,16 @@ class Utils {
     async removeDeletedValues(model, id, attribute) {
         await model.updateMany({ [`${attribute}`]: id }, { $pull: { [`${attribute}`]: id } })
     }
+
+    /**
+     *To update the asscoiated fields in collection . Ex : if we create a landlord with property x and in that x property update this landlord
+     * @param {*} model 
+     * @param {*} data 
+     * @param {*} filter 
+     * @param {*} attribute 
+     */
+    async updateAssocitedFields(model , data , filter , attribute) {
+        await model.updateMany({ id : { $in : filter} }, { $addToSet: { [`${attribute}`]: data } })
+    }
 }
 module.exports = new Utils();
