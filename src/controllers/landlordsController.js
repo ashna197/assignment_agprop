@@ -20,6 +20,9 @@ async function createLanlordDetails(req, res) {
         }
         req.body['id'] = utils.uuid();
         const landlord = await landlordsModel.create(req.body);
+        if (req.body.properties) {
+            await utils.updateAssocitedFields(propertiesModel, req.body['id'], req.body.properties, "landlords")
+        }
         delete landlord._doc._id;
         delete landlord._doc.__v;
         return res.status(201).json(landlord);
@@ -92,6 +95,9 @@ async function updateLandlordDetails(req, res) {
         const updatedLandlord = await landlordsModel.findOneAndReplace({ id: req.params.landlordId }, req.body, options);
         if (!updatedLandlord) {
             return res.status(404).json({ error: 'Landlord Details not found' });
+        }
+        if (req.body.properties) {
+            await utils.updateAssocitedFields(propertiesModel, req.body['id'], req.body.properties, "landlords")
         }
         return res.status(200).json(updatedLandlord);
     } catch (error) {
