@@ -22,6 +22,12 @@ async function createProperty(req, res) {
         const property = await propertiesModel.create(req.body);
         delete property._doc._id;
         delete property._doc.__v;
+        if (req.body.landlords) {
+            await utils.updateAssocitedFields(landlordsModel, req.body['id'], req.body.landlords, "properties")
+        }
+        if (req.body.brokers) {
+            await utils.updateAssocitedFields(brokersModel, req.body['id'], req.body.brokers, "properties")
+        }
         return res.status(201).json(property);
     } catch (error) {
         return res.status(500).json({ error: `'Error creating the property' : ${error}` });
@@ -89,6 +95,12 @@ async function updateProperty(req, res) {
         const updatedProperty = await propertiesModel.findOneAndReplace({ id: req.params.propertyId }, req.body, options);
         if (!updatedProperty) {
             return res.status(404).json({ error: 'Property not found' });
+        }
+        if (req.body.landlords) {
+            await utils.updateAssocitedFields(landlordsModel, req.body['id'], req.body.landlords, "properties")
+        }
+        if (req.body.brokers) {
+            await utils.updateAssocitedFields(brokersModel, req.body['id'], req.body.brokers, "properties")
         }
         return res.status(200).json(updatedProperty);
     } catch (error) {
