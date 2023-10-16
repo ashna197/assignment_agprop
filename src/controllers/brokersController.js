@@ -20,6 +20,9 @@ async function createBrokerDetails(req, res) {
         }
         req.body['id'] = utils.uuid();
         const broker = await brokersModel.create(req.body);
+        if (req.body.properties) {
+            await utils.updateAssocitedFields(propertiesModel, req.body['id'], req.body.properties, "brokers")
+        }
         delete broker._doc._id;
         delete broker._doc.__v;
         return res.status(201).json(broker);
@@ -94,6 +97,9 @@ async function updateBrokerDetails(req, res) {
         const updatedBroker = await brokersModel.findOneAndReplace({ id: req.params.brokerId }, req.body, options);
         if (!updatedBroker) {
             return res.status(404).json({ error: 'Broker not found' });
+        }
+        if (req.body.properties) {
+            await utils.updateAssocitedFields(propertiesModel, req.body['id'], req.body.properties, "brokers")
         }
         return res.status(200).json(updatedBroker);
     } catch (error) {
